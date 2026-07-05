@@ -8,10 +8,10 @@ from datetime import datetime, timedelta
 @dataclass
 class Task:
     title: str
-    duration: int  # in minutes
-    priority: str  # "high", "medium", "low"
-    time: str = "08:00"  # HH:MM format
-    frequency: str = "once"  # "once", "daily", "weekly"
+    duration: int
+    priority: str
+    time: str = "08:00"
+    frequency: str = "once"
     completed: bool = False
 
     def mark_complete(self):
@@ -58,3 +58,25 @@ class Scheduler:
     def get_daily_plan(self):
         """Generate a daily plan sorted by priority."""
         return self.sort_by_priority()
+
+    def detect_conflicts(self):
+        """Detect tasks scheduled at the same time."""
+        all_tasks = self.owner.get_all_tasks()
+        time_map = {}
+        conflicts = []
+        for pet_name, task in all_tasks:
+            if task.time in time_map:
+                conflicts.append(
+                    f"⚠️ Conflict at {task.time}: {pet_name} ({task.title}) "
+                    f"vs {time_map[task.time][0]} ({time_map[task.time][1]})"
+                )
+            else:
+                time_map[task.time] = (pet_name, task.title)
+        return conflicts
+
+    def filter_by_pet(self, pet_name):
+        """Filter tasks by pet name."""
+        return [
+            (name, task) for name, task in self.owner.get_all_tasks()
+            if name.lower() == pet_name.lower()
+        ]
