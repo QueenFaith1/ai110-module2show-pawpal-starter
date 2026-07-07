@@ -41,11 +41,19 @@ if st.session_state.owner:
         st.session_state.owner.pets[0].add_task(task)
         st.success(f"Task '{task_title}' added!")
 
+    
     # Generate Schedule
     st.header("📅 Daily Schedule")
     if st.button("Build Schedule"):
         scheduler = Scheduler(st.session_state.owner)
         plan = scheduler.get_daily_plan()
+        
+        # Show conflicts
+        conflicts = scheduler.detect_conflicts()
+        if conflicts:
+            for conflict in conflicts:
+                st.warning(conflict)
+        
         if plan:
             for pet_name, task in plan:
                 status = "✅" if task.completed else "⏳"
